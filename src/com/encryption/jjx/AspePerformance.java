@@ -6,7 +6,7 @@ import java.util.BitSet;
 import java.util.Random;
 
 public class AspePerformance {
-	
+
 	int labelLength;
 	int dimension;
 	BitSet center;
@@ -14,7 +14,7 @@ public class AspePerformance {
 	ASPE aspe;
 	int discenters;
 	ArrayList<double[][]> piece;
-	
+
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
@@ -27,12 +27,13 @@ public class AspePerformance {
 
 	/**
 	 * Test the encryption performance
+	 * 
 	 * @return the encrypted label
 	 */
 	public ArrayList<double[][]> encryptPerformance() {
 		Random random = new Random();
 		generateVector(random.nextInt(10));
-		ArrayList<double[][]> result=divide();
+		ArrayList<double[][]> result = divide();
 		clearCenters();
 		return result;
 	}
@@ -131,24 +132,24 @@ public class AspePerformance {
 	 *            Contain all the pieces
 	 * @return query all the piece
 	 */
-	public double query(ArrayList<double[][]> intersection) {
-		double sum = 0;
+	public ArrayList<Double> query(ArrayList<double[][]> intersection) {
+		ArrayList<Double> resultVector = new ArrayList<Double>();
 		for (int i = 0; i < intersection.size(); i++)
-			sum += queryByPiece(intersection.get(i));
-		return sum;
+			resultVector.add(queryByPiece(intersection.get(i)));
+		return resultVector;
 	}
-	
-	public long queryOneTime()
-	{
-		ArrayList<double[][]> lin=encryptPerformance();
-		ArrayList<double[][]> lout=encryptPerformance();
-		
-		long t0=System.currentTimeMillis();
-		ArrayList<double[][]> intersection=intersectAll(lin, lout);
-		double sum=query(intersection);
+
+	public long queryOneTime() {
+		ArrayList<double[][]> lin = encryptPerformance();
+		ArrayList<double[][]> lout = encryptPerformance();
+
+		long t0 = System.currentTimeMillis();
+		ArrayList<double[][]> intersection = intersectAll(lin, lout);
+		ArrayList<Double> sum = query(intersection);
 		System.out.println(decode(sum));
-		return System.currentTimeMillis()-t0;
+		return System.currentTimeMillis() - t0;
 	}
+
 	/**
 	 * Decode the result
 	 * 
@@ -156,13 +157,16 @@ public class AspePerformance {
 	 *            : sum is the ca*qa+cb*qb
 	 * @return : If reachable, return true; else false
 	 */
-	public boolean decode(double sum) {
-		long sumInt = new BigDecimal(sum).setScale(0, BigDecimal.ROUND_HALF_UP)
-				.longValue();
-		while (sumInt >= 1) {
-			if (sumInt % 3 == 2)
-				return true;
-			sumInt /= 3;
+	public boolean decode(ArrayList<Double> resultVector) {
+		for (int i = 0; i < resultVector.size(); i++) {
+			double sum = resultVector.get(i);
+			long sumInt = new BigDecimal(sum).setScale(0,
+					BigDecimal.ROUND_HALF_UP).longValue();
+			while (sumInt >= 1) {
+				if (sumInt % 3 == 2)
+					return true;
+				sumInt /= 3;
+			}
 		}
 		return false;
 	}
