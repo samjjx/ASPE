@@ -31,7 +31,7 @@ public class AspePerformance {
 	 */
 	public ArrayList<double[][]> encryptPerformance() {
 		Random random = new Random();
-		generateVector(random.nextInt(2));
+		generateVector(random.nextInt(10));
 		ArrayList<double[][]> result=divide();
 		clearCenters();
 		return result;

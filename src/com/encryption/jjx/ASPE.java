@@ -28,6 +28,7 @@ public class ASPE {
 		queryVector=new double[2][d];
 		for(int i=0;i<d;i++)
 			queryVector[0][i]=Math.pow(3, i);
+		splitQuery();
 	}
 	/**
 	 * Split the query vector and encrypt them respectively.
