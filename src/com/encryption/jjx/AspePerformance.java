@@ -1,6 +1,7 @@
 package com.encryption.jjx;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Random;
 
@@ -12,7 +13,8 @@ public class AspePerformance {
 	int pieces;
 	ASPE aspe;
 	int discenters;
-
+	ArrayList<double[]> pieceA;
+	ArrayList<double[]> pieceB;
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
@@ -20,6 +22,8 @@ public class AspePerformance {
 		this.aspe = new ASPE(dimension);
 		discenters = labelLength;
 		center = new BitSet(labelLength);
+		pieceA=new ArrayList<double[]>();
+		pieceB=new ArrayList<double[]>();
 	}
 
 	/**
@@ -50,6 +54,8 @@ public class AspePerformance {
 	 */
 	public void clearCenters() {
 		center.clear();
+		pieceA.clear();
+		pieceB.clear();
 	}
 
 	/**
@@ -61,7 +67,9 @@ public class AspePerformance {
 			for (int j = 0; j < dimension; j++)
 				if (center.get(i * dimension + j))
 					pieceLabel[j] = 1;
-			double[][] temp = aspe.encryptOneLabel(pieceLabel);
+			double[][] encryptLabel=aspe.encryptOneLabel(pieceLabel);
+			pieceA.add(encryptLabel[0]);
+			pieceB.add(encryptLabel[1]);
 			for (int j = 0; j < dimension; j++)
 				pieceLabel[j] = 0;
 		}
