@@ -18,6 +18,7 @@ public class ASPE {
 		M2T = M2.inverse();
 		splitKey = new BitSet(d);
 		setSplitKey();
+		generateQueryVector();
 	}
 	/**
 	 * Generate the query vector like 3 9 27 81...3^n. n is the dimension
