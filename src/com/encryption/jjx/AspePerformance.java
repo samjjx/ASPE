@@ -13,8 +13,7 @@ public class AspePerformance {
 	int pieces;
 	ASPE aspe;
 	int discenters;
-	ArrayList<double[]> pieceA;
-	ArrayList<double[]> pieceB;
+	ArrayList<double[][]> piece;
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
@@ -22,8 +21,7 @@ public class AspePerformance {
 		this.aspe = new ASPE(dimension);
 		discenters = labelLength;
 		center = new BitSet(labelLength);
-		pieceA=new ArrayList<double[]>();
-		pieceB=new ArrayList<double[]>();
+		piece=new ArrayList<double[][]>();
 	}
 
 	/**
@@ -54,25 +52,26 @@ public class AspePerformance {
 	 */
 	public void clearCenters() {
 		center.clear();
-		pieceA.clear();
-		pieceB.clear();
+		piece.clear();
 	}
 
 	/**
 	 * Divide a label and encrypt it
+	 * @return return the encrypted vector after division
 	 */
-	public void divide() {
+	public ArrayList<double[][]> divide() {
 		double[] pieceLabel = new double[dimension];
+		ArrayList<double[][]> encryption=new ArrayList<double[][]>();
 		for (int i = 0; i < pieces; i++) {
 			for (int j = 0; j < dimension; j++)
 				if (center.get(i * dimension + j))
 					pieceLabel[j] = 1;
 			double[][] encryptLabel=aspe.encryptOneLabel(pieceLabel);
-			pieceA.add(encryptLabel[0]);
-			pieceB.add(encryptLabel[1]);
+			encryption.add(encryptLabel);
 			for (int j = 0; j < dimension; j++)
 				pieceLabel[j] = 0;
 		}
+		return encryption;
 	}
 
 	/**
@@ -91,7 +90,17 @@ public class AspePerformance {
 				intersection[i][j] = lin[i][j] + lout[i][j];
 		return intersection;
 	}
-
+	/**
+	 * Intersect all the pieces of the label
+	 * @return the intersection results. 
+	 */
+	public ArrayList<double[][]> intersectAll(ArrayList<double[][]> lin, ArrayList<double[][]> lout)
+	{
+		ArrayList<double[][]> result=new ArrayList<double[][]>();
+		for(int i=0;i<lin.size();i++)
+			result.add(intersect(lin.get(i), lout.get(i)));
+		return result;
+	}
 	/**
 	 * Query for the result
 	 * 
