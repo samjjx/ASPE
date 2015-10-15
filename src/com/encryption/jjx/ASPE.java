@@ -9,7 +9,7 @@ public class ASPE {
 	Matrix M1, M1T, M2, M2T;
 	int d;
 	BitSet splitKey;
-
+	double[][] queryVector;
 	public ASPE(int d) {
 		this.d = d;
 		M1 = generatekey(d);
@@ -19,7 +19,34 @@ public class ASPE {
 		splitKey = new BitSet(d);
 		setSplitKey();
 	}
-
+	/**
+	 * Generate the query vector like 3 9 27 81...3^n. n is the dimension
+	 */
+	public void generateQueryVector()
+	{
+		queryVector=new double[2][d];
+		for(int i=0;i<d;i++)
+			queryVector[0][i]=Math.pow(3, i);
+	}
+	/**
+	 * Split the query vector and encrypt them respectively.
+	 */
+	public void splitQuery()
+	{
+		Random random=new Random();
+		for(int i=0;i<queryVector[0].length;i++)
+			if(!splitKey.get(i))
+			{
+				queryVector[1][i]=random.nextDouble();
+				queryVector[0][i]-=queryVector[1][i];
+			}
+			else
+				queryVector[1][i]=queryVector[0][i];
+		queryVector[0]=M1T.times(new Matrix(queryVector[0],1).transpose()).
+				getColumnPackedCopy();
+		queryVector[1]=M2T.times(new Matrix(queryVector[1],1).transpose()).
+				getColumnPackedCopy();
+	}
 	/**
 	 * initialize the splitKey
 	 */
