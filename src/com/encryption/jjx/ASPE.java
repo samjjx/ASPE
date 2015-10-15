@@ -29,7 +29,7 @@ public class ASPE {
 			queryVector[0][i]=Math.pow(3, i);
 	}
 	/**
-	 * Split the query
+	 * Split the query vector and encrypt them respectively.
 	 */
 	public void splitQuery()
 	{
@@ -42,6 +42,10 @@ public class ASPE {
 			}
 			else
 				queryVector[1][i]=queryVector[0][i];
+		queryVector[0]=M1T.times(new Matrix(queryVector[0],1).transpose()).
+				getColumnPackedCopy();
+		queryVector[1]=M2T.times(new Matrix(queryVector[1],1).transpose()).
+				getColumnPackedCopy();
 	}
 	/**
 	 * initialize the splitKey
