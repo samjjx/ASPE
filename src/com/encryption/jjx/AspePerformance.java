@@ -48,7 +48,7 @@ public class AspePerformance {
 		Random random = new Random();
 		for (int i = 0; i < numberOfCenters; i++)
 			center.set(random.nextInt(labelLength));
-		System.out.println(center);
+		//System.out.println(center);
 	}
 
 	/**
