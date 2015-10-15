@@ -26,7 +26,9 @@ public class Encryption {
 //		double[] encryptA=aspe.encryptSeperateLabel(splited[0], 0);
 //		new Matrix(encryptA,1).times(aspe.M1T).print(d, 1);
 //		double[] encryptB=aspe.encryptSeperateLabel(splited[1], 1);
-		System.out.println(Math.pow(3, 32));
+		double big=Math.pow(3, 50);
+		for(int i=0;i<50;i++)
+			System.out.println(big/=3);
 	}
 	
 }
