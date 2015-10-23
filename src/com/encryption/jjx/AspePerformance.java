@@ -3,7 +3,6 @@ package com.encryption.jjx;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -30,7 +29,7 @@ public class AspePerformance {
 
 	/**
 	 * Test the encryption performance
-	 * 
+	 * @param inOrOut : indicate the lin or the lout
 	 * @return the encrypted label
 	 */
 	public ArrayList<double[][]> encryptPerformance(int inOrOut) {
@@ -44,7 +43,22 @@ public class AspePerformance {
 		clearCenters();
 		return result;
 	}
-
+	/**
+	 * Test the encryption performance on the real datasets
+	 * @param inOrOut : indicate the lin or the lout 
+	 * @param label : the real label
+	 * @return
+	 */
+	public ArrayList<double[][]> encryptPerformance(int inOrOut,LinkedList<Integer> label) {
+		generateVector(label);
+		if(inOrOut==0)
+			linBitSet=(BitSet)center.clone();
+		else
+			loutBitSet=(BitSet)center.clone();
+		ArrayList<double[][]> result = divide();
+		clearCenters();
+		return result;
+	}
 	/**
 	 * Generate the labels randomly
 	 * 
@@ -55,7 +69,7 @@ public class AspePerformance {
 		Random random = new Random();
 		for (int i = 0; i < numberOfCenters; i++)
 			center.set(random.nextInt(labelLength));
-		System.out.println(center);
+//		System.out.println(center);
 	}
 	/**
 	 * Generate the labels on the real datasets
@@ -65,7 +79,7 @@ public class AspePerformance {
 	{
 		for(int vertex:label)
 			center.set(vertex);
-		System.out.println();
+//		System.out.println(center);
 	}
 	/**
 	 * Clear the bitCenters of the label. After encrypting the tested label, the
@@ -154,7 +168,10 @@ public class AspePerformance {
 			resultVector.add(queryByPiece(intersection.get(i)));
 		return resultVector;
 	}
-
+	/**
+	 * Test the query performance on the random label
+	 * @return
+	 */
 	public long queryOneTime() {
 		ArrayList<double[][]> lin = encryptPerformance(0);
 		ArrayList<double[][]> lout = encryptPerformance(1);
@@ -162,12 +179,30 @@ public class AspePerformance {
 		long t0 = System.currentTimeMillis();
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
 		ArrayList<Double> sum = query(intersection);
-		System.out.println(decode(sum));
+		for(int i=0;i<discenters/dimension;i++)
+		aspe.generateQueryVector();
+		decode(sum);
 		return System.currentTimeMillis() - t0;
 	}
+	/**
+	 * Test the correctness on random label
+	 * @return
+	 */
 	public boolean queryOneTimeTest() {
 		ArrayList<double[][]> lin = encryptPerformance(0);
 		ArrayList<double[][]> lout = encryptPerformance(1);
+
+		ArrayList<double[][]> intersection = intersectAll(lin, lout);
+		ArrayList<Double> sum = query(intersection);
+		return decode(sum);
+	}
+	/**
+	 * Test the correctness on real label
+	 * @return
+	 */
+	public boolean queryOneTimeTest(LinkedList<Integer> linList,LinkedList<Integer> loutList) {
+		ArrayList<double[][]> lin = encryptPerformance(0,linList);
+		ArrayList<double[][]> lout = encryptPerformance(1,loutList);
 
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
 		ArrayList<Double> sum = query(intersection);
@@ -186,10 +221,9 @@ public class AspePerformance {
 			long sumInt = new BigDecimal(sum).setScale(0,
 					BigDecimal.ROUND_HALF_UP).longValue();
 			while (sumInt >= 1) {
-				System.out.print(sumInt+" ");
 				if (sumInt % 3 == 2)
 					{
-						System.out.println("In the Piece:" + i);
+//						System.out.println("In the Piece:" + i);
 						return true;
 					}
 				sumInt /= 3;

@@ -120,7 +120,7 @@ public class ASPE {
 		Random random = new Random();
 		for (int i = 0; i < label.length; i++)
 			if (splitKey.get(i)) {
-				splitedLabel[0][i] = random.nextInt(100);
+				splitedLabel[0][i] = random.nextDouble()*100;
 				splitedLabel[1][i] = label[i] - splitedLabel[0][i];
 			} else {
 				splitedLabel[0][i] = label[i];
