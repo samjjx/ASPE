@@ -34,7 +34,7 @@ public class BM {
 		BigMatrixImpl MTb=(BigMatrixImpl) MT.multiply(bVector.transpose());
 		long t0=System.currentTimeMillis();
 		BigMatrixImpl result;
-		for(int i=0;i<100;i++)
+		for(int i=0;i<1000;i++)
 			result=aM.multiply(MTb);
 		System.out.println(System.currentTimeMillis()-t0);
 	}

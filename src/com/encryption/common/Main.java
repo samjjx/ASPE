@@ -1,4 +1,4 @@
-package com.encryption.jjx;
+package com.encryption.common;
 
 import java.io.IOException;
 import java.util.Random;
@@ -101,10 +101,11 @@ public class Main {
 //			}
 //		}
 		Scanner scan=new Scanner(System.in);
+		testError(1000, 100, 1000);
 		while(scan.hasNext())
 		{
 			int centers=scan.nextInt();
-			System.out.println((double)queryPerformance(centers, 24, 1000)/1000);
+			System.out.println((double)encryptedPerformance(centers, 56, 1000)/1000);
 		}
 		
 	}
