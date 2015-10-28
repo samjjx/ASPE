@@ -6,6 +6,8 @@ import java.util.BitSet;
 import java.util.LinkedList;
 import java.util.Random;
 
+import Jama.Matrix;
+
 public class AspePerformance {
 
 	int labelLength;
@@ -15,12 +17,12 @@ public class AspePerformance {
 	ASPE aspe;
 	int discenters;
 	ArrayList<double[][]> piece;
-	BitSet linBitSet,loutBitSet;
+	BitSet linBitSet, loutBitSet;
 
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
-		this.pieces = this.labelLength / this.dimension;
+		this.pieces = (this.labelLength-1) / this.dimension+1;
 		this.aspe = new ASPE(dimension);
 		discenters = labelLength;
 		center = new BitSet(labelLength);
@@ -29,36 +31,44 @@ public class AspePerformance {
 
 	/**
 	 * Test the encryption performance
-	 * @param inOrOut : indicate the lin or the lout
+	 * 
+	 * @param inOrOut
+	 *            : indicate the lin or the lout
 	 * @return the encrypted label
 	 */
 	public ArrayList<double[][]> encryptPerformance(int inOrOut) {
 		Random random = new Random();
 		generateVector(random.nextInt(discenters));
-		if(inOrOut==0)
-			linBitSet=(BitSet)center.clone();
+		if (inOrOut == 0)
+			linBitSet = (BitSet) center.clone();
 		else
-			loutBitSet=(BitSet)center.clone();
-		ArrayList<double[][]> result = divide();
+			loutBitSet = (BitSet) center.clone();
+		ArrayList<double[][]> result = divide(inOrOut);
 		clearCenters();
 		return result;
 	}
+
 	/**
 	 * Test the encryption performance on the real datasets
-	 * @param inOrOut : indicate the lin or the lout 
-	 * @param label : the real label
+	 * 
+	 * @param inOrOut
+	 *            : indicate the lin or the lout
+	 * @param label
+	 *            : the real label
 	 * @return
 	 */
-	public ArrayList<double[][]> encryptPerformance(int inOrOut,LinkedList<Integer> label) {
+	public ArrayList<double[][]> encryptPerformance(int inOrOut,
+			LinkedList<Integer> label) {
 		generateVector(label);
-		if(inOrOut==0)
-			linBitSet=(BitSet)center.clone();
+		if (inOrOut == 0)
+			linBitSet = (BitSet) center.clone();
 		else
-			loutBitSet=(BitSet)center.clone();
-		ArrayList<double[][]> result = divide();
+			loutBitSet = (BitSet) center.clone();
+		ArrayList<double[][]> result = divide(inOrOut);
 		clearCenters();
 		return result;
 	}
+
 	/**
 	 * Generate the labels randomly
 	 * 
@@ -69,18 +79,21 @@ public class AspePerformance {
 		Random random = new Random();
 		for (int i = 0; i < numberOfCenters; i++)
 			center.set(random.nextInt(labelLength));
-//		System.out.println(center);
+		// System.out.println(center);
 	}
+
 	/**
 	 * Generate the labels on the real datasets
-	 * @param label : The real label
+	 * 
+	 * @param label
+	 *            : The real label
 	 */
-	public void generateVector(LinkedList<Integer> label)
-	{
-		for(int vertex:label)
+	public void generateVector(LinkedList<Integer> label) {
+		for (int vertex : label)
 			center.set(vertex);
-//		System.out.println(center);
+		// System.out.println(center);
 	}
+
 	/**
 	 * Clear the bitCenters of the label. After encrypting the tested label, the
 	 * Bitset should be cleared.
@@ -95,19 +108,46 @@ public class AspePerformance {
 	 * 
 	 * @return return the encrypted vector after division
 	 */
-	public ArrayList<double[][]> divide() {
+	public ArrayList<double[][]> divide(int inOrOut) {
 		double[] pieceLabel = new double[dimension];
 		ArrayList<double[][]> encryption = new ArrayList<double[][]>();
 		for (int i = 0; i < pieces; i++) {
-			for (int j = 0; j < dimension; j++)
-				if (center.get(i * dimension + j))
-					pieceLabel[j] = 1;
+			pieceLabel = encode(inOrOut, i);
 			double[][] encryptLabel = aspe.encryptOneLabel(pieceLabel);
 			encryption.add(encryptLabel);
 			for (int j = 0; j < dimension; j++)
 				pieceLabel[j] = 0;
 		}
 		return encryption;
+	}
+
+	/**
+	 * 
+	 * @param inOrOut
+	 *            Indicate Lin or Lout
+	 * @param fragment
+	 *            The i-th fragment
+	 * @return
+	 */
+	public double[] encode(int inOrOut, int fragment) {
+		double[] pieceLabel = new double[dimension];
+		for(int i=0;i<dimension;i++)
+			pieceLabel[i]=1;
+		if (inOrOut == 0) {
+			for (int j = 0; j < dimension; j++)
+				if (center.get(fragment * dimension + j))
+					pieceLabel[j] = 2;
+				else
+					pieceLabel[j] = 1;
+
+		} else {
+			for (int j = 0; j < dimension; j++)
+				if (center.get(fragment * dimension + j))
+					pieceLabel[j] = 3;
+				else
+					pieceLabel[j] = 1;
+		}
+		return pieceLabel;
 	}
 
 	/**
@@ -148,10 +188,17 @@ public class AspePerformance {
 	 * @return : return the query result after the multiplication
 	 */
 	public double queryByPiece(double[][] intersection) {
-		double sum = 0;
-		for (int i = 0; i < intersection.length; i++)
-			for (int j = 0; j < intersection[i].length; j++)
-				sum = sum + aspe.queryVector[i][j] * intersection[i][j];
+		double[][] queryResult = new double[2][intersection[0].length];
+		double[] result = new double[intersection[0].length];
+		queryResult[0] = new Matrix(intersection[0], 1).times(
+				new Matrix(aspe.queryVector[0])).getColumnPackedCopy();
+		queryResult[1] = new Matrix(intersection[1], 1).times(
+				new Matrix(aspe.queryVector[1])).getColumnPackedCopy();
+		for (int i = 0; i < result.length; i++)
+			result[i] = queryResult[0][i] + queryResult[1][i];
+		double sum = 1;
+		for (int i = 0; i < result.length; i++)
+			sum *= result[i];
 		return sum;
 	}
 
@@ -168,8 +215,10 @@ public class AspePerformance {
 			resultVector.add(queryByPiece(intersection.get(i)));
 		return resultVector;
 	}
+
 	/**
 	 * Test the query performance on the random label
+	 * 
 	 * @return
 	 */
 	public long queryOneTime() {
@@ -179,13 +228,15 @@ public class AspePerformance {
 		long t0 = System.currentTimeMillis();
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
 		ArrayList<Double> sum = query(intersection);
-		for(int i=0;i<discenters/dimension;i++)
+
 		aspe.generateQueryVector();
 		decode(sum);
 		return System.currentTimeMillis() - t0;
 	}
+
 	/**
 	 * Test the correctness on random label
+	 * 
 	 * @return
 	 */
 	public boolean queryOneTimeTest() {
@@ -196,18 +247,22 @@ public class AspePerformance {
 		ArrayList<Double> sum = query(intersection);
 		return decode(sum);
 	}
+
 	/**
 	 * Test the correctness on real label
+	 * 
 	 * @return
 	 */
-	public boolean queryOneTimeTest(LinkedList<Integer> linList,LinkedList<Integer> loutList) {
-		ArrayList<double[][]> lin = encryptPerformance(0,linList);
-		ArrayList<double[][]> lout = encryptPerformance(1,loutList);
+	public boolean queryOneTimeTest(LinkedList<Integer> linList,
+			LinkedList<Integer> loutList) {
+		ArrayList<double[][]> lin = encryptPerformance(0, linList);
+		ArrayList<double[][]> lout = encryptPerformance(1, loutList);
 
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
 		ArrayList<Double> sum = query(intersection);
 		return decode(sum);
 	}
+
 	/**
 	 * Decode the result
 	 * 
@@ -218,16 +273,13 @@ public class AspePerformance {
 	public boolean decode(ArrayList<Double> resultVector) {
 		for (int i = 0; i < resultVector.size(); i++) {
 			double sum = resultVector.get(i);
+			for (int j = 0; j < aspe.queryMatrixDig.length; j++)
+				sum /= aspe.queryMatrixDig[j];
 			long sumInt = new BigDecimal(sum).setScale(0,
 					BigDecimal.ROUND_HALF_UP).longValue();
-			while (sumInt >= 1) {
-				if (sumInt % 3 == 2)
-					{
-//						System.out.println("In the Piece:" + i);
-						return true;
-					}
-				sumInt /= 3;
-			}
+			
+			if (sumInt % 5 == 0)
+				return true;
 		}
 		return false;
 	}

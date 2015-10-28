@@ -9,7 +9,8 @@ public class ASPE {
 	Matrix M1, M1T, M2, M2T;
 	int d;
 	BitSet splitKey;
-	double[][] queryVector;
+	double[][][] queryVector;
+	double[] queryMatrixDig;
 	public ASPE(int d) {
 		this.d = d;
 		M1 = generatekey(d);
@@ -20,35 +21,42 @@ public class ASPE {
 		setSplitKey();
 		generateQueryVector();
 	}
+
 	/**
 	 * Generate the query vector like 3 9 27 81...3^n. n is the dimension
 	 */
-	public void generateQueryVector()
-	{
-		queryVector=new double[2][d];
-		for(int i=0;i<d;i++)
-			queryVector[0][i]=Math.pow(3, i);
+	public void generateQueryVector() {
+		queryMatrixDig=new double[d];
+		Random random=new Random();
+		queryVector = new double[2][d][d];
+		for (int i = 0; i < d; i++)
+		{
+			queryVector[0][i][i] = random.nextDouble()+1;
+			
+			queryMatrixDig[i]=queryVector[0][i][i];
+		}
 		splitQuery();
 	}
+
 	/**
 	 * Split the query vector and encrypt them respectively.
 	 */
-	public void splitQuery()
-	{
-		Random random=new Random();
-		for(int i=0;i<queryVector[0].length;i++)
-			if(!splitKey.get(i))
-			{
-				queryVector[1][i]=random.nextDouble();
-				queryVector[0][i]-=queryVector[1][i];
-			}
-			else
-				queryVector[1][i]=queryVector[0][i];
-		queryVector[0]=M1T.times(new Matrix(queryVector[0],1).transpose()).
-				getColumnPackedCopy();
-		queryVector[1]=M2T.times(new Matrix(queryVector[1],1).transpose()).
-				getColumnPackedCopy();
+	public void splitQuery() {
+		Random random = new Random();
+		for (int i = 0; i < queryVector[0].length; i++)
+			if (!splitKey.get(i)) {
+				for (int j = 0; j < queryVector[0].length; j++) {
+					queryVector[1][i][j] = random.nextDouble();
+					queryVector[0][i][j] -= queryVector[1][i][j];
+				}
+			} else
+				for (int j = 0; j < queryVector[0].length; j++)
+					queryVector[1][i][j] = queryVector[0][i][j];
+		queryVector[0] = M1T.times(new Matrix(queryVector[0])).getArray();
+
+		queryVector[1] = M2T.times(new Matrix(queryVector[1])).getArray();
 	}
+
 	/**
 	 * initialize the splitKey
 	 */
@@ -73,19 +81,22 @@ public class ASPE {
 			key = Matrix.random(d, d);
 		}
 	}
+
 	/**
 	 * Encrypt a label
-	 * @param label : the label to be encrypted
+	 * 
+	 * @param label
+	 *            : the label to be encrypted
 	 * @return : The related two encrypted labels
 	 */
-	public double[][] encryptOneLabel(double[] label)
-	{
-		double[][] splited=splitLabel(label);
-		double[][] encryptedLabel=new double[2][label.length];
-		encryptedLabel[0]=encryptSeperateLabel(splited[0], 0);
-		encryptedLabel[1]=encryptSeperateLabel(splited[1], 1);
+	public double[][] encryptOneLabel(double[] label) {
+		double[][] splited = splitLabel(label);
+		double[][] encryptedLabel = new double[2][label.length];
+		encryptedLabel[0] = encryptSeperateLabel(splited[0], 0);
+		encryptedLabel[1] = encryptSeperateLabel(splited[1], 1);
 		return encryptedLabel;
 	}
+
 	/**
 	 * Encrypt a split label
 	 * 
@@ -104,8 +115,7 @@ public class ASPE {
 		double[] result = new double[d];
 		if (label.length != this.d)
 			return result;
-		return new Matrix(label, 1).times(keyMatrix)
-				.getColumnPackedCopy();
+		return new Matrix(label, 1).times(keyMatrix).getColumnPackedCopy();
 	}
 
 	/**
@@ -120,17 +130,15 @@ public class ASPE {
 		Random random = new Random();
 		for (int i = 0; i < label.length; i++)
 			if (splitKey.get(i)) {
-				splitedLabel[0][i] = random.nextDouble()*100;
+				splitedLabel[0][i] = random.nextDouble();
 				splitedLabel[1][i] = label[i] - splitedLabel[0][i];
 			} else {
 				splitedLabel[0][i] = label[i];
 				splitedLabel[1][i] = label[i];
 			}
-
 		return splitedLabel;
 	}
 
 	public void query() {
-
 	}
 }

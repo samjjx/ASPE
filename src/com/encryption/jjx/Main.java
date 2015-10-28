@@ -27,7 +27,10 @@ public class Main {
 		for (int i = 0; i < queryTime; i++) {
 			System.out.println("Begin :" + i);
 			boolean reachability = ap.queryOneTimeTest();
+//			System.out.println("lin"+ap.linBitSet);
+//			System.out.println("lout"+ap.loutBitSet);
 			ap.linBitSet.and(ap.loutBitSet);
+			
 			boolean plainText = !ap.linBitSet.isEmpty();
 			if (reachability != plainText) {
 				System.out.println("encrypt:" + reachability);
