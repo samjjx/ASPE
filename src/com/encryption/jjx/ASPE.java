@@ -11,6 +11,7 @@ public class ASPE {
 	BitSet splitKey;
 	double[][][] queryVector;
 	double[] queryMatrixDig;
+	
 	public ASPE(int d) {
 		this.d = d;
 		M1 = generatekey(d);
@@ -32,7 +33,6 @@ public class ASPE {
 		for (int i = 0; i < d; i++)
 		{
 			queryVector[0][i][i] = random.nextDouble()+1;
-			
 			queryMatrixDig[i]=queryVector[0][i][i];
 		}
 		splitQuery();

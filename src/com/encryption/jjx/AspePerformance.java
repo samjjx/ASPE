@@ -18,11 +18,14 @@ public class AspePerformance {
 	int discenters;
 	ArrayList<double[][]> piece;
 	BitSet linBitSet, loutBitSet;
-
+	
+	long QtTime=0;
+	long DtTime=0;
+	long TotalTime=0;
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
-		this.pieces = (this.labelLength-1) / this.dimension+1;
+		this.pieces = (this.labelLength - 1) / this.dimension + 1;
 		this.aspe = new ASPE(dimension);
 		discenters = labelLength;
 		center = new BitSet(labelLength);
@@ -131,8 +134,8 @@ public class AspePerformance {
 	 */
 	public double[] encode(int inOrOut, int fragment) {
 		double[] pieceLabel = new double[dimension];
-		for(int i=0;i<dimension;i++)
-			pieceLabel[i]=1;
+		for (int i = 0; i < dimension; i++)
+			pieceLabel[i] = 1;
 		if (inOrOut == 0) {
 			for (int j = 0; j < dimension; j++)
 				if (center.get(fragment * dimension + j))
@@ -215,7 +218,7 @@ public class AspePerformance {
 			resultVector.add(queryByPiece(intersection.get(i)));
 		return resultVector;
 	}
-
+	long EtTime=0;
 	/**
 	 * Test the query performance on the random label
 	 * 
@@ -226,12 +229,22 @@ public class AspePerformance {
 		ArrayList<double[][]> lout = encryptPerformance(1);
 
 		long t0 = System.currentTimeMillis();
+		long start=t0;
+		aspe.generateQueryVector();
+		EtTime+=System.currentTimeMillis()-t0;
+		
+		t0=System.currentTimeMillis();
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
 		ArrayList<Double> sum = query(intersection);
-
-		aspe.generateQueryVector();
+		
+		QtTime+=System.currentTimeMillis()-t0;
+		t0=System.currentTimeMillis();
+		
 		decode(sum);
-		return System.currentTimeMillis() - t0;
+		DtTime+=System.currentTimeMillis()-t0;
+		TotalTime+=System.currentTimeMillis()-start;
+		
+		return System.currentTimeMillis()-start;
 	}
 
 	/**
@@ -277,7 +290,7 @@ public class AspePerformance {
 				sum /= aspe.queryMatrixDig[j];
 			long sumInt = new BigDecimal(sum).setScale(0,
 					BigDecimal.ROUND_HALF_UP).longValue();
-			
+
 			if (sumInt % 5 == 0)
 				return true;
 		}

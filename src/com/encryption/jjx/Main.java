@@ -6,11 +6,13 @@ import java.util.Scanner;
 
 public class Main {
 	public static long queryPerformance(int disCenters, int dimension,
-			int labels) {
+			int times) {
 		AspePerformance ap = new AspePerformance(disCenters, dimension);
 		int count=0;
-		for (int i = 0; i < labels; i++)
+		for (int i = 0; i < times; i++)
 			count+=ap.queryOneTime();
+		System.out.println("Total time\t Encryption time \t Query time \t Descryption time");
+		System.out.println(ap.TotalTime+"\t"+ap.EtTime+"\t"+ ap.QtTime+"\t"+ap.DtTime+"\t");
 		return count;
 	}
 	public static long encryptedPerformance(int disCenters, int dimension,
@@ -107,7 +109,7 @@ public class Main {
 		while(scan.hasNext())
 		{
 			int centers=scan.nextInt();
-			System.out.println((double)queryPerformance(centers, 24, 1000)/1000);
+			System.out.println((double)queryPerformance(centers, 24, 10000)/10000);
 		}
 		
 	}
