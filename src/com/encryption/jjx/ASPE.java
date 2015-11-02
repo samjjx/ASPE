@@ -9,9 +9,10 @@ public class ASPE {
 	Matrix M1, M1T, M2, M2T;
 	int d;
 	BitSet splitKey;
-	double[][][] queryVector;
-	double[] queryMatrixDig;
-	
+	double[][][] queryMatrixI;
+	double[][][] queryMatrixIcomplement;
+	double[] queryMatrixRandomFactor;
+
 	public ASPE(int d) {
 		this.d = d;
 		M1 = generatekey(d);
@@ -27,14 +28,20 @@ public class ASPE {
 	 * Generate the query vector like 3 9 27 81...3^n. n is the dimension
 	 */
 	public void generateQueryVector() {
-		queryMatrixDig=new double[d];
-		Random random=new Random();
-		queryVector = new double[2][d][d];
+		queryMatrixRandomFactor = new double[d];
+		Random random = new Random();
+		queryMatrixI = new double[2][d][d];
+		queryMatrixIcomplement = new double[2][d][d];
 		for (int i = 0; i < d; i++)
-		{
-			queryVector[0][i][i] = random.nextDouble()+1;
-			queryMatrixDig[i]=queryVector[0][i][i];
-		}
+			queryMatrixRandomFactor[i] = random.nextDouble() + 1;
+		for (int i = 0; i < d; i++)
+			for (int j = 0; j < d; j++) {
+				queryMatrixI[0][i][j] = 2 * queryMatrixRandomFactor[j];
+				queryMatrixIcomplement[0][i][j] = 2 * queryMatrixRandomFactor[j];
+			}
+		for (int i = 0; i < d; i++)
+			queryMatrixIcomplement[0][i][i] -= queryMatrixRandomFactor[i];
+
 		splitQuery();
 	}
 
@@ -43,19 +50,23 @@ public class ASPE {
 	 */
 	public void splitQuery() {
 		Random random = new Random();
-		for (int i = 0; i < queryVector[0].length; i++)
+		for (int i = 0; i < queryMatrixI[0].length; i++)
 			if (!splitKey.get(i)) {
-				for (int j = 0; j < queryVector[0].length; j++) {
-					queryVector[1][i][j] = random.nextDouble();
-					queryVector[0][i][j] -= queryVector[1][i][j];
+				for (int j = 0; j < queryMatrixI[0].length; j++) {
+					queryMatrixI[1][i][j] = random.nextDouble();
+					queryMatrixI[0][i][j] -= queryMatrixI[1][i][j];
+					queryMatrixIcomplement[1][i][j] = random.nextDouble();
+					queryMatrixIcomplement[0][i][j] -= queryMatrixIcomplement[1][i][j];
 				}
 			} else
-				for (int j = 0; j < queryVector[0].length; j++)
-					queryVector[1][i][j] = queryVector[0][i][j];
-		queryVector[0] = M1T.times(new Matrix(queryVector[0])).getArray();
-
-		queryVector[1] = M2T.times(new Matrix(queryVector[1])).getArray();
-	}
+				for (int j = 0; j < queryMatrixI[0].length; j++)
+					queryMatrixI[1][i][j] = queryMatrixI[0][i][j];
+		queryMatrixI[0] = M1T.times(new Matrix(queryMatrixI[0])).getArray();
+		queryMatrixI[1] = M2T.times(new Matrix(queryMatrixI[1])).getArray();
+		
+		queryMatrixIcomplement[0] = M1T.times(new Matrix(queryMatrixIcomplement[0])).getArray();
+		queryMatrixIcomplement[1] = M2T.times(new Matrix(queryMatrixIcomplement[1])).getArray();
+		}
 
 	/**
 	 * initialize the splitKey
