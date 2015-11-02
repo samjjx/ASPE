@@ -18,10 +18,11 @@ public class AspePerformance {
 	int discenters;
 	ArrayList<double[][]> piece;
 	BitSet linBitSet, loutBitSet;
-	
-	long QtTime=0;
-	long DtTime=0;
-	long TotalTime=0;
+
+	long QtTime = 0;
+	long DtTime = 0;
+	long TotalTime = 0;
+
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
@@ -191,14 +192,24 @@ public class AspePerformance {
 	 * @return : return the query result after the multiplication
 	 */
 	public double queryByPiece(double[][] intersection) {
-		double[][] queryResult = new double[2][intersection[0].length];
+		double[][] queryResultI = new double[2][intersection[0].length];
+		double[][] queryResultIcomplement = new double[2][intersection[0].length];
 		double[] result = new double[intersection[0].length];
-		queryResult[0] = new Matrix(intersection[0], 1).times(
-				new Matrix(aspe.queryVector[0])).getColumnPackedCopy();
-		queryResult[1] = new Matrix(intersection[1], 1).times(
-				new Matrix(aspe.queryVector[1])).getColumnPackedCopy();
+
+		queryResultI[0] = new Matrix(intersection[0], 1).times(
+				new Matrix(aspe.queryMatrixI[0])).getColumnPackedCopy();
+		queryResultI[1] = new Matrix(intersection[1], 1).times(
+				new Matrix(aspe.queryMatrixI[1])).getColumnPackedCopy();
+
+		queryResultIcomplement[0] = new Matrix(intersection[0], 1).times(
+				new Matrix(aspe.queryMatrixIcomplement[0]))
+				.getColumnPackedCopy();
+		queryResultIcomplement[1] = new Matrix(intersection[1], 1).times(
+				new Matrix(aspe.queryMatrixIcomplement[1]))
+				.getColumnPackedCopy();
+
 		for (int i = 0; i < result.length; i++)
-			result[i] = queryResult[0][i] + queryResult[1][i];
+			result[i] = queryResultI[0][i] + queryResultI[1][i]-(queryResultIcomplement[0][i] + queryResultIcomplement[1][i]);
 		double sum = 1;
 		for (int i = 0; i < result.length; i++)
 			sum *= result[i];
@@ -218,7 +229,9 @@ public class AspePerformance {
 			resultVector.add(queryByPiece(intersection.get(i)));
 		return resultVector;
 	}
-	long EtTime=0;
+
+	long EtTime = 0;
+
 	/**
 	 * Test the query performance on the random label
 	 * 
@@ -229,22 +242,22 @@ public class AspePerformance {
 		ArrayList<double[][]> lout = encryptPerformance(1);
 
 		long t0 = System.currentTimeMillis();
-		long start=t0;
+		long start = t0;
 		aspe.generateQueryVector();
-		EtTime+=System.currentTimeMillis()-t0;
-		
-		t0=System.currentTimeMillis();
+		EtTime += System.currentTimeMillis() - t0;
+
+		t0 = System.currentTimeMillis();
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
 		ArrayList<Double> sum = query(intersection);
-		
-		QtTime+=System.currentTimeMillis()-t0;
-		t0=System.currentTimeMillis();
-		
+
+		QtTime += System.currentTimeMillis() - t0;
+		t0 = System.currentTimeMillis();
+
 		decode(sum);
-		DtTime+=System.currentTimeMillis()-t0;
-		TotalTime+=System.currentTimeMillis()-start;
-		
-		return System.currentTimeMillis()-start;
+		DtTime += System.currentTimeMillis() - t0;
+		TotalTime += System.currentTimeMillis() - start;
+
+		return System.currentTimeMillis() - start;
 	}
 
 	/**
@@ -286,8 +299,8 @@ public class AspePerformance {
 	public boolean decode(ArrayList<Double> resultVector) {
 		for (int i = 0; i < resultVector.size(); i++) {
 			double sum = resultVector.get(i);
-			for (int j = 0; j < aspe.queryMatrixDig.length; j++)
-				sum /= aspe.queryMatrixDig[j];
+			for (int j = 0; j < aspe.queryMatrixRandomFactor.length; j++)
+				sum /= aspe.queryMatrixRandomFactor[j];
 			long sumInt = new BigDecimal(sum).setScale(0,
 					BigDecimal.ROUND_HALF_UP).longValue();
 
