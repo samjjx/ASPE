@@ -39,9 +39,12 @@ public class ASPE {
 				queryMatrixI[0][i][j] = 2 * queryMatrixRandomFactor[j];
 				queryMatrixIcomplement[0][i][j] = 2 * queryMatrixRandomFactor[j];
 			}
+
 		for (int i = 0; i < d; i++)
 			queryMatrixIcomplement[0][i][i] -= queryMatrixRandomFactor[i];
 
+		new Matrix(queryMatrixI[0]).print(10, 10);
+		new Matrix(queryMatrixIcomplement[0]).print(10, 10);
 		splitQuery();
 	}
 
@@ -60,13 +63,18 @@ public class ASPE {
 				}
 			} else
 				for (int j = 0; j < queryMatrixI[0].length; j++)
+				{
 					queryMatrixI[1][i][j] = queryMatrixI[0][i][j];
+					queryMatrixIcomplement[1][i][j]=queryMatrixIcomplement[0][i][j];
+				}
 		queryMatrixI[0] = M1T.times(new Matrix(queryMatrixI[0])).getArray();
 		queryMatrixI[1] = M2T.times(new Matrix(queryMatrixI[1])).getArray();
-		
-		queryMatrixIcomplement[0] = M1T.times(new Matrix(queryMatrixIcomplement[0])).getArray();
-		queryMatrixIcomplement[1] = M2T.times(new Matrix(queryMatrixIcomplement[1])).getArray();
-		}
+
+		queryMatrixIcomplement[0] = M1T.times(
+				new Matrix(queryMatrixIcomplement[0])).getArray();
+		queryMatrixIcomplement[1] = M2T.times(
+				new Matrix(queryMatrixIcomplement[1])).getArray();
+	}
 
 	/**
 	 * initialize the splitKey

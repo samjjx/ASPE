@@ -109,7 +109,7 @@ public class Main {
 		while(scan.hasNext())
 		{
 			int centers=scan.nextInt();
-			testError(centers, 24, 1000);
+			testError(centers, 4, 4);
 //			System.out.println((double)queryPerformance(centers, 24, 10000)/10000);
 		}
 		

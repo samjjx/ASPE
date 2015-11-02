@@ -42,7 +42,7 @@ public class AspePerformance {
 	 */
 	public ArrayList<double[][]> encryptPerformance(int inOrOut) {
 		Random random = new Random();
-		generateVector(random.nextInt(discenters));
+		generateVector(4);
 		if (inOrOut == 0)
 			linBitSet = (BitSet) center.clone();
 		else
@@ -303,7 +303,7 @@ public class AspePerformance {
 				sum /= aspe.queryMatrixRandomFactor[j];
 			long sumInt = new BigDecimal(sum).setScale(0,
 					BigDecimal.ROUND_HALF_UP).longValue();
-
+			System.out.println("sum is :" + sumInt);
 			if (sumInt % 5 == 0)
 				return true;
 		}
