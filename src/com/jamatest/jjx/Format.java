@@ -8,7 +8,7 @@ public class Format {
 		Scanner scan=new Scanner(System.in);
 		while(scan.hasNext())
 		{
-			System.out.println(scan.nextDouble()/10000);
+			System.out.println(scan.nextDouble()/1000);
 		}
 
 	}

@@ -12,7 +12,7 @@ public class ASPE {
 	double[][][] queryMatrixI;
 	double[][][] queryMatrixIcomplement;
 	double[] queryMatrixRandomFactor;
-
+	
 	public ASPE(int d) {
 		this.d = d;
 		M1 = generatekey(d);
@@ -43,8 +43,8 @@ public class ASPE {
 		for (int i = 0; i < d; i++)
 			queryMatrixIcomplement[0][i][i] -= queryMatrixRandomFactor[i];
 
-		new Matrix(queryMatrixI[0]).print(10, 10);
-		new Matrix(queryMatrixIcomplement[0]).print(10, 10);
+//		new Matrix(queryMatrixI[0]).print(10, 10);
+//		new Matrix(queryMatrixIcomplement[0]).print(10, 10);
 		splitQuery();
 	}
 

@@ -42,7 +42,7 @@ public class AspePerformance {
 	 */
 	public ArrayList<double[][]> encryptPerformance(int inOrOut) {
 		Random random = new Random();
-		generateVector(4);
+		generateVector(random.nextInt(discenters));
 		if (inOrOut == 0)
 			linBitSet = (BitSet) center.clone();
 		else
@@ -135,19 +135,24 @@ public class AspePerformance {
 	 */
 	public double[] encode(int inOrOut, int fragment) {
 		double[] pieceLabel = new double[dimension];
-		for (int i = 0; i < dimension; i++)
-			pieceLabel[i] = 1;
+		if (inOrOut == 0)
+			for (int i = 0; i < dimension; i++)
+				pieceLabel[i] = 0;
+		if (inOrOut == 1)
+			for (int i = 0; i < dimension; i++)
+				pieceLabel[i] = 1;
+
 		if (inOrOut == 0) {
 			for (int j = 0; j < dimension; j++)
 				if (center.get(fragment * dimension + j))
-					pieceLabel[j] = 2;
-				else
 					pieceLabel[j] = 1;
+				else
+					pieceLabel[j] = 0;
 
 		} else {
 			for (int j = 0; j < dimension; j++)
 				if (center.get(fragment * dimension + j))
-					pieceLabel[j] = 3;
+					pieceLabel[j] = 2;
 				else
 					pieceLabel[j] = 1;
 		}
@@ -209,7 +214,9 @@ public class AspePerformance {
 				.getColumnPackedCopy();
 
 		for (int i = 0; i < result.length; i++)
-			result[i] = queryResultI[0][i] + queryResultI[1][i]-(queryResultIcomplement[0][i] + queryResultIcomplement[1][i]);
+			result[i] = queryResultI[0][i]
+					+ queryResultI[1][i]
+					- (queryResultIcomplement[0][i] + queryResultIcomplement[1][i]);
 		double sum = 1;
 		for (int i = 0; i < result.length; i++)
 			sum *= result[i];
@@ -240,6 +247,35 @@ public class AspePerformance {
 	public long queryOneTime() {
 		ArrayList<double[][]> lin = encryptPerformance(0);
 		ArrayList<double[][]> lout = encryptPerformance(1);
+
+		long t0 = System.currentTimeMillis();
+		long start = t0;
+		aspe.generateQueryVector();
+		EtTime += System.currentTimeMillis() - t0;
+
+		t0 = System.currentTimeMillis();
+		ArrayList<double[][]> intersection = intersectAll(lin, lout);
+		ArrayList<Double> sum = query(intersection);
+
+		QtTime += System.currentTimeMillis() - t0;
+		t0 = System.currentTimeMillis();
+
+		decode(sum);
+		DtTime += System.currentTimeMillis() - t0;
+		TotalTime += System.currentTimeMillis() - start;
+
+		return System.currentTimeMillis() - start;
+	}
+
+	/**
+	 * Test the query performance on the real dataset
+	 * 
+	 * @return
+	 */
+	public long queryOneTime(LinkedList<Integer> linList,
+			LinkedList<Integer> loutList) {
+		ArrayList<double[][]> lin = encryptPerformance(0, linList);
+		ArrayList<double[][]> lout = encryptPerformance(1, loutList);
 
 		long t0 = System.currentTimeMillis();
 		long start = t0;
@@ -297,16 +333,19 @@ public class AspePerformance {
 	 * @return : If reachable, return true; else false
 	 */
 	public boolean decode(ArrayList<Double> resultVector) {
+		boolean flag = false;
+		double randomFactor = 1;
+		for (int j = 0; j < aspe.queryMatrixRandomFactor.length; j++)
+			randomFactor *= aspe.queryMatrixRandomFactor[j];
 		for (int i = 0; i < resultVector.size(); i++) {
 			double sum = resultVector.get(i);
-			for (int j = 0; j < aspe.queryMatrixRandomFactor.length; j++)
-				sum /= aspe.queryMatrixRandomFactor[j];
+			sum /= randomFactor;
 			long sumInt = new BigDecimal(sum).setScale(0,
 					BigDecimal.ROUND_HALF_UP).longValue();
-			System.out.println("sum is :" + sumInt);
-			if (sumInt % 5 == 0)
-				return true;
+			// System.out.println("sum is :" + sumInt);
+			if (sumInt % 3 == 0)
+				flag = true;
 		}
-		return false;
+		return flag;
 	}
 }
