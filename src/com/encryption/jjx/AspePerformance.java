@@ -256,7 +256,7 @@ public class AspePerformance {
 
 		long t0 = System.currentTimeMillis();
 		long start = t0;
-		aspe.generateQueryVector();
+//		aspe.generateQueryVector();
 		EtTime += System.currentTimeMillis() - t0;
 
 		t0 = System.currentTimeMillis();
@@ -265,7 +265,9 @@ public class AspePerformance {
 
 		QtTime += System.currentTimeMillis() - t0;
 		t0 = System.currentTimeMillis();
-
+//		sum=sum.divide(randomFactor,3,RoundingMode.HALF_UP);
+//		BigInteger queryResult=sum.toBigInteger().mod(new BigInteger("3"));
+//		queryResult.equals(BigInteger.ZERO);
 		decode(sum);
 		DtTime += System.currentTimeMillis() - t0;
 		TotalTime += System.currentTimeMillis() - start;
@@ -294,7 +296,6 @@ public class AspePerformance {
 
 		QtTime += System.currentTimeMillis() - t0;
 		t0 = System.currentTimeMillis();
-
 		decode(sum);
 		DtTime += System.currentTimeMillis() - t0;
 		TotalTime += System.currentTimeMillis() - start;
@@ -339,11 +340,13 @@ public class AspePerformance {
 	 * @return : If reachable, return true; else false
 	 */
 	public boolean decode(BigDecimal result) {
-		long t0=System.currentTimeMillis();
+//		long t0=System.currentTimeMillis();
 //		System.out.println(randomFactor);
 //		System.out.println(result);
-		result=result.divide(randomFactor,3,RoundingMode.HALF_UP);
-		System.out.println(System.currentTimeMillis()-t0);
+//		System.out.println();
+		result=result.divide(randomFactor,1,RoundingMode.HALF_UP);
+		
+//		System.out.println(System.currentTimeMillis()-t0);
 		BigInteger queryResult=result.toBigInteger().mod(new BigInteger("3"));
 		if(queryResult.equals(BigInteger.ZERO))
 			return true;
