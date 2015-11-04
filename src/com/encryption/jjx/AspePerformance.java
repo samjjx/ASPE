@@ -31,8 +31,12 @@ public class AspePerformance {
 		discenters = labelLength;
 		center = new BitSet(labelLength);
 		piece = new ArrayList<double[][]>();
-		randomFactor= Math.pow(aspe.queryRandomFactor, aspe.d);
+		randomFactor = Math.pow(aspe.queryRandomFactor, aspe.d*4);
+		lin = encryptPerformance(0);
+		lout = encryptPerformance(1);
 	}
+
+	ArrayList<double[][]> lin, lout;
 
 	/**
 	 * Test the encryption performance
@@ -238,6 +242,26 @@ public class AspePerformance {
 		return resultVector;
 	}
 
+	public ArrayList<Double> query(ArrayList<double[][]> intersection, int fragments) {
+		ArrayList<Double> resultVector = new ArrayList<Double>();
+		for (int i = 0; i < intersection.size(); i++)
+			resultVector.add(queryByPiece(intersection.get(i)));
+		ArrayList<Double> combineVector=new ArrayList<Double>();
+		int groups=(resultVector.size()-1)/fragments+1;
+		for(int i=0;i<groups-1;i++)
+		{
+			double temp=1;
+			for(int j=0;j<fragments;j++)
+				temp*=resultVector.get(i*fragments+j);
+			combineVector.add(temp);
+		}
+		double temp=1;
+		for(int i=resultVector.size()-fragments;i<resultVector.size();i++)
+			temp*=resultVector.get(i);
+		combineVector.add(temp);
+		return combineVector;
+	}
+
 	long EtTime = 0;
 
 	/**
@@ -245,31 +269,28 @@ public class AspePerformance {
 	 * 
 	 * @return
 	 */
-	int count =0;
-	public long queryOneTime() {
-		ArrayList<double[][]> lin = encryptPerformance(0);
-		ArrayList<double[][]> lout = encryptPerformance(1);
+	int count = 0;
 
+	public long queryOneTime() {
 		long t0 = System.currentTimeMillis();
 		long start = t0;
-		aspe.generateQueryVector();
+		// aspe.generateQueryVector();
 		EtTime += System.currentTimeMillis() - t0;
 
 		t0 = System.currentTimeMillis();
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection);
+		ArrayList<Double> sum = query(intersection,4);
 
 		QtTime += System.currentTimeMillis() - t0;
-		
-		if(count==0)
-		{
+
+		if (count == 0) {
 			t0 = System.currentTimeMillis();
-			for(int i=0;i<10000;i++)
+			for (int i = 0; i < 1000; i++)
 				decode(sum);
 			count++;
 			DtTime += System.currentTimeMillis() - t0;
 		}
-		
+
 		TotalTime += System.currentTimeMillis() - start;
 
 		return System.currentTimeMillis() - start;
@@ -340,16 +361,18 @@ public class AspePerformance {
 	 *            : sum is the ca*qa+cb*qb
 	 * @return : If reachable, return true; else false
 	 */
-	final double randomFactor; 
+	static double randomFactor;
 
 	public boolean decode(ArrayList<Double> resultVector) {
 		boolean flag = false;
 		for (int i = 0; i < resultVector.size(); i++) {
 			double sum = resultVector.get(i);
+//			System.out.println("sum is :" + sum);
 			sum /= randomFactor;
 			long sumInt = new BigDecimal(sum).setScale(0,
 					BigDecimal.ROUND_HALF_UP).longValue();
-			// System.out.println("sum is :" + sumInt);
+			// System.out.println(sumInt);
+//			System.out.println("sumInt is :" + sumInt);
 			if (sumInt % 3 == 0)
 				flag = true;
 		}

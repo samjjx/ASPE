@@ -32,7 +32,7 @@ public class ASPE {
 		Random random = new Random();
 		queryMatrixI = new double[2][d][d];
 		queryMatrixIcomplement = new double[2][d][d];
-		queryRandomFactor=random.nextDouble() + 1;
+		queryRandomFactor=1.1;
 		for (int i = 0; i < d; i++)
 			for (int j = 0; j < d; j++) {
 				queryMatrixI[0][i][j] = 2 * queryRandomFactor;
