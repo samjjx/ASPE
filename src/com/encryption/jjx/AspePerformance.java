@@ -31,6 +31,7 @@ public class AspePerformance {
 		discenters = labelLength;
 		center = new BitSet(labelLength);
 		piece = new ArrayList<double[][]>();
+		randomFactor= Math.pow(aspe.queryRandomFactor, aspe.d);
 	}
 
 	/**
@@ -244,6 +245,7 @@ public class AspePerformance {
 	 * 
 	 * @return
 	 */
+	int count =0;
 	public long queryOneTime() {
 		ArrayList<double[][]> lin = encryptPerformance(0);
 		ArrayList<double[][]> lout = encryptPerformance(1);
@@ -258,10 +260,16 @@ public class AspePerformance {
 		ArrayList<Double> sum = query(intersection);
 
 		QtTime += System.currentTimeMillis() - t0;
-		t0 = System.currentTimeMillis();
-
-		decode(sum);
-		DtTime += System.currentTimeMillis() - t0;
+		
+		if(count==0)
+		{
+			t0 = System.currentTimeMillis();
+			for(int i=0;i<10000;i++)
+				decode(sum);
+			count++;
+			DtTime += System.currentTimeMillis() - t0;
+		}
+		
 		TotalTime += System.currentTimeMillis() - start;
 
 		return System.currentTimeMillis() - start;
@@ -332,11 +340,10 @@ public class AspePerformance {
 	 *            : sum is the ca*qa+cb*qb
 	 * @return : If reachable, return true; else false
 	 */
+	final double randomFactor; 
+
 	public boolean decode(ArrayList<Double> resultVector) {
 		boolean flag = false;
-		double randomFactor = 1;
-		for (int j = 0; j < aspe.queryMatrixRandomFactor.length; j++)
-			randomFactor *= aspe.queryMatrixRandomFactor[j];
 		for (int i = 0; i < resultVector.size(); i++) {
 			double sum = resultVector.get(i);
 			sum /= randomFactor;
