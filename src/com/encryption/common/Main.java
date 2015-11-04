@@ -101,12 +101,12 @@ public class Main {
 //			}
 //		}
 		Scanner scan=new Scanner(System.in);
-		testError(1000, 100, 1000);
-		while(scan.hasNext())
-		{
-			int centers=scan.nextInt();
-			System.out.println((double)encryptedPerformance(centers, 56, 1000)/1000);
-		}
+		testError(1000, 24, 1000);
+//		while(scan.hasNext())
+//		{
+//			int centers=scan.nextInt();
+//			System.out.println((double)encryptedPerformance(centers, 56, 1000)/1000);
+//		}
 		
 	}
 

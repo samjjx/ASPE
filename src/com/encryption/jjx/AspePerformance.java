@@ -1,6 +1,8 @@
 package com.encryption.jjx;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.LinkedList;
@@ -22,7 +24,7 @@ public class AspePerformance {
 	long QtTime = 0;
 	long DtTime = 0;
 	long TotalTime = 0;
-
+	BigDecimal randomFactor;
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
@@ -31,6 +33,7 @@ public class AspePerformance {
 		discenters = labelLength;
 		center = new BitSet(labelLength);
 		piece = new ArrayList<double[][]>();
+		randomFactor=aspe.divisionFactor.pow(pieces);
 	}
 
 	/**
@@ -230,11 +233,14 @@ public class AspePerformance {
 	 *            Contain all the pieces
 	 * @return query all the piece
 	 */
-	public ArrayList<Double> query(ArrayList<double[][]> intersection) {
+	public BigDecimal query(ArrayList<double[][]> intersection) {
 		ArrayList<Double> resultVector = new ArrayList<Double>();
 		for (int i = 0; i < intersection.size(); i++)
 			resultVector.add(queryByPiece(intersection.get(i)));
-		return resultVector;
+		BigDecimal result=BigDecimal.ONE;
+		for(double pieceResult:resultVector)
+			result=result.multiply(new BigDecimal(Double.toString(pieceResult)));
+		return result;
 	}
 
 	long EtTime = 0;
@@ -255,7 +261,7 @@ public class AspePerformance {
 
 		t0 = System.currentTimeMillis();
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection);
+		BigDecimal sum = query(intersection);
 
 		QtTime += System.currentTimeMillis() - t0;
 		t0 = System.currentTimeMillis();
@@ -284,7 +290,7 @@ public class AspePerformance {
 
 		t0 = System.currentTimeMillis();
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection);
+		BigDecimal sum = query(intersection);
 
 		QtTime += System.currentTimeMillis() - t0;
 		t0 = System.currentTimeMillis();
@@ -306,7 +312,7 @@ public class AspePerformance {
 		ArrayList<double[][]> lout = encryptPerformance(1);
 
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection);
+		BigDecimal sum = query(intersection);
 		return decode(sum);
 	}
 
@@ -321,7 +327,7 @@ public class AspePerformance {
 		ArrayList<double[][]> lout = encryptPerformance(1, loutList);
 
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection);
+		BigDecimal sum = query(intersection);
 		return decode(sum);
 	}
 
@@ -332,20 +338,16 @@ public class AspePerformance {
 	 *            : sum is the ca*qa+cb*qb
 	 * @return : If reachable, return true; else false
 	 */
-	public boolean decode(ArrayList<Double> resultVector) {
-		boolean flag = false;
-		double randomFactor = 1;
-		for (int j = 0; j < aspe.queryMatrixRandomFactor.length; j++)
-			randomFactor *= aspe.queryMatrixRandomFactor[j];
-		for (int i = 0; i < resultVector.size(); i++) {
-			double sum = resultVector.get(i);
-			sum /= randomFactor;
-			long sumInt = new BigDecimal(sum).setScale(0,
-					BigDecimal.ROUND_HALF_UP).longValue();
-			// System.out.println("sum is :" + sumInt);
-			if (sumInt % 3 == 0)
-				flag = true;
-		}
-		return flag;
+	public boolean decode(BigDecimal result) {
+		long t0=System.currentTimeMillis();
+//		System.out.println(randomFactor);
+//		System.out.println(result);
+		result=result.divide(randomFactor,3,RoundingMode.HALF_UP);
+		System.out.println(System.currentTimeMillis()-t0);
+		BigInteger queryResult=result.toBigInteger().mod(new BigInteger("3"));
+		if(queryResult.equals(BigInteger.ZERO))
+			return true;
+		else
+			return false;
 	}
 }

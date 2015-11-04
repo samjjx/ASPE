@@ -1,5 +1,6 @@
 package com.encryption.jjx;
 
+import java.math.BigDecimal;
 import java.util.BitSet;
 import java.util.Random;
 
@@ -11,7 +12,8 @@ public class ASPE {
 	BitSet splitKey;
 	double[][][] queryMatrixI;
 	double[][][] queryMatrixIcomplement;
-	double[] queryMatrixRandomFactor;
+	double queryRandomFactor;
+	BigDecimal divisionFactor;
 	
 	public ASPE(int d) {
 		this.d = d;
@@ -28,21 +30,21 @@ public class ASPE {
 	 * Generate the query vector like 3 9 27 81...3^n. n is the dimension
 	 */
 	public void generateQueryVector() {
-		queryMatrixRandomFactor = new double[d];
 		Random random = new Random();
 		queryMatrixI = new double[2][d][d];
 		queryMatrixIcomplement = new double[2][d][d];
-		for (int i = 0; i < d; i++)
-			queryMatrixRandomFactor[i] = random.nextDouble() + 1;
+		queryRandomFactor=random.nextDouble()+1;
+		
 		for (int i = 0; i < d; i++)
 			for (int j = 0; j < d; j++) {
-				queryMatrixI[0][i][j] = 2 * queryMatrixRandomFactor[j];
-				queryMatrixIcomplement[0][i][j] = 2 * queryMatrixRandomFactor[j];
+				queryMatrixI[0][i][j] = 2 * queryRandomFactor;
+				queryMatrixIcomplement[0][i][j] = 2 * queryRandomFactor;
 			}
 
 		for (int i = 0; i < d; i++)
-			queryMatrixIcomplement[0][i][i] -= queryMatrixRandomFactor[i];
-
+			queryMatrixIcomplement[0][i][i] -= queryRandomFactor;
+		divisionFactor=new BigDecimal(Double.toString(queryRandomFactor));
+		divisionFactor=divisionFactor.pow(d);
 //		new Matrix(queryMatrixI[0]).print(10, 10);
 //		new Matrix(queryMatrixIcomplement[0]).print(10, 10);
 		splitQuery();

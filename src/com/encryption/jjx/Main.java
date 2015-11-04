@@ -139,8 +139,8 @@ public class Main {
 //		dataset.add("p2p-Gnutella06");
 //		dataset.add("p2p-Gnutella08");
 //		dataset.add("p2p-Gnutella09");
-		dataset.add("p2p-Gnutella24");
-		dataset.add("p2p-Gnutella25");
+//		dataset.add("p2p-Gnutella24");
+//		dataset.add("p2p-Gnutella25");
 //		dataset.add("p2p-Gnutella30");
 //		dataset.add("p2p-Gnutella31");
 		
@@ -148,7 +148,7 @@ public class Main {
 		{
 			int centers=scan.nextInt();
 //		for(String data:dataset)
-			queryPerformance(centers,24, 1000);
+			testError(centers,4, 1000);
 //			System.out.println((double)queryPerformance(centers, 24, 10000)/10000);
 		}
 	}
