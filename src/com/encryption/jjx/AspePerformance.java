@@ -22,7 +22,7 @@ public class AspePerformance {
 	long QtTime = 0;
 	long DtTime = 0;
 	long TotalTime = 0;
-
+	int fragments=4;
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
@@ -31,12 +31,12 @@ public class AspePerformance {
 		discenters = labelLength;
 		center = new BitSet(labelLength);
 		piece = new ArrayList<double[][]>();
-		randomFactor = Math.pow(aspe.queryRandomFactor, aspe.d*4);
-		lin = encryptPerformance(0);
-		lout = encryptPerformance(1);
+		
+		randomFactor = Math.pow(aspe.queryRandomFactor, aspe.d*fragments);
+		
 	}
 
-	ArrayList<double[][]> lin, lout;
+	
 
 	/**
 	 * Test the encryption performance
@@ -47,7 +47,7 @@ public class AspePerformance {
 	 */
 	public ArrayList<double[][]> encryptPerformance(int inOrOut) {
 		Random random = new Random();
-		generateVector(random.nextInt(discenters));
+		generateVector(random.nextInt(100));
 		if (inOrOut == 0)
 			linBitSet = (BitSet) center.clone();
 		else
@@ -272,6 +272,9 @@ public class AspePerformance {
 	int count = 0;
 
 	public long queryOneTime() {
+		ArrayList<double[][]> lin, lout;
+		lin = encryptPerformance(0);
+		lout = encryptPerformance(1);
 		long t0 = System.currentTimeMillis();
 		long start = t0;
 		// aspe.generateQueryVector();
@@ -279,13 +282,13 @@ public class AspePerformance {
 
 		t0 = System.currentTimeMillis();
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection,4);
+		ArrayList<Double> sum = query(intersection,fragments);
 
 		QtTime += System.currentTimeMillis() - t0;
 
 		if (count == 0) {
 			t0 = System.currentTimeMillis();
-			for (int i = 0; i < 1000; i++)
+			for (int i = 0; i < 10000; i++)
 				decode(sum);
 			count++;
 			DtTime += System.currentTimeMillis() - t0;
@@ -335,7 +338,7 @@ public class AspePerformance {
 		ArrayList<double[][]> lout = encryptPerformance(1);
 
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection);
+		ArrayList<Double> sum = query(intersection,4);
 		return decode(sum);
 	}
 

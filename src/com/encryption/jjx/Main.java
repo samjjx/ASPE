@@ -148,7 +148,7 @@ public class Main {
 		{
 			int centers=scan.nextInt();
 //		for(String data:dataset)
-			queryPerformance(centers,24, 1000);
+			testError(centers,24, 1000);
 //			System.out.println((double)queryPerformance(centers, 24, 10000)/10000);
 		}
 	}
