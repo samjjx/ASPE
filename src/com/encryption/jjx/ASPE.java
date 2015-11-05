@@ -32,7 +32,7 @@ public class ASPE {
 		Random random = new Random();
 		queryMatrixI = new double[2][d][d];
 		queryMatrixIcomplement = new double[2][d][d];
-		queryRandomFactor=random.nextDouble()+1;
+		queryRandomFactor=random.nextDouble();
 		for (int i = 0; i < d; i++)
 			for (int j = 0; j < d; j++) {
 				queryMatrixI[0][i][j] = 2 * queryRandomFactor;
@@ -92,14 +92,23 @@ public class ASPE {
 	 * @return : Return a Matrix whose det is not 0
 	 */
 	public Matrix generatekey(int d) {
-		Matrix key = Matrix.random(d, d);
+		Matrix key = randomMatrix(d);
 		while (true) {
 			if (key.det() != 0)
 				return key;
-			key = Matrix.random(d, d);
+			key=randomMatrix(d);
+//			key = Matrix.random(d, d);
 		}
 	}
-
+	public Matrix randomMatrix(int d)
+	{
+		double[][] matrix=new double[d][d];
+		Random random=new Random();
+		for(int i=0;i<d;i++)
+			for(int j=0;j<d;j++)
+				matrix[i][j]=random.nextDouble()+1;
+		return new Matrix(matrix);
+	}
 	/**
 	 * Encrypt a label
 	 * 

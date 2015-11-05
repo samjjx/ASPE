@@ -22,7 +22,7 @@ public class AspePerformance {
 	long QtTime = 0;
 	long DtTime = 0;
 	long TotalTime = 0;
-	int fragments=4;
+	int fragments=8;
 	public AspePerformance(int labelLength, int dimension) {
 		this.labelLength = labelLength;
 		this.dimension = dimension;
@@ -47,7 +47,7 @@ public class AspePerformance {
 	 */
 	public ArrayList<double[][]> encryptPerformance(int inOrOut) {
 		Random random = new Random();
-		generateVector(random.nextInt(100));
+		generateVector(random.nextInt(10));
 		if (inOrOut == 0)
 			linBitSet = (BitSet) center.clone();
 		else
@@ -256,8 +256,15 @@ public class AspePerformance {
 			combineVector.add(temp);
 		}
 		double temp=1;
-		for(int i=resultVector.size()-fragments;i<resultVector.size();i++)
-			temp*=resultVector.get(i);
+		if(resultVector.size()-fragments>=0)
+			for(int i=resultVector.size()-fragments;i<resultVector.size();i++)
+				temp*=resultVector.get(i);
+		else {
+			for(int i=0;i<resultVector.size();i++)
+				temp*=resultVector.get(i);
+			for(int i=0;i<fragments-resultVector.size();i++)
+				temp*=resultVector.get(0);
+		}
 		combineVector.add(temp);
 		return combineVector;
 	}
@@ -338,7 +345,7 @@ public class AspePerformance {
 		ArrayList<double[][]> lout = encryptPerformance(1);
 
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection,4);
+		ArrayList<Double> sum = query(intersection,fragments);
 		return decode(sum);
 	}
 
@@ -353,7 +360,7 @@ public class AspePerformance {
 		ArrayList<double[][]> lout = encryptPerformance(1, loutList);
 
 		ArrayList<double[][]> intersection = intersectAll(lin, lout);
-		ArrayList<Double> sum = query(intersection);
+		ArrayList<Double> sum = query(intersection,fragments);
 		return decode(sum);
 	}
 
@@ -372,6 +379,7 @@ public class AspePerformance {
 			double sum = resultVector.get(i);
 //			System.out.println("sum is :" + sum);
 			sum /= randomFactor;
+//			System.out.println(sum);
 			long sumInt = new BigDecimal(sum).setScale(0,
 					BigDecimal.ROUND_HALF_UP).longValue();
 			// System.out.println(sumInt);

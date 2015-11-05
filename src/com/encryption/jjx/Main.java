@@ -148,7 +148,7 @@ public class Main {
 		{
 			int centers=scan.nextInt();
 //		for(String data:dataset)
-			testError(centers,24, 1000);
+			testError(24, 1000,"Cit-HepPh");
 //			System.out.println((double)queryPerformance(centers, 24, 10000)/10000);
 		}
 	}
